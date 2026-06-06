@@ -1,0 +1,79 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "A user of the system (manager or rep)",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string" },
+        "name": { "type": "string" },
+        "role": { "type": "string", "enum": ["manager", "rep"] },
+        "createdAt": { "type": "number" }
+      },
+      "required": ["email", "name", "role", "createdAt"]
+    },
+    "Shop": {
+      "title": "Shop",
+      "description": "A shop added by a representative",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "managerName": { "type": "string" },
+        "phone": { "type": "string" },
+        "whatsapp": { "type": "string" },
+        "district": { "type": "string" },
+        "city": { "type": "string" },
+        "type": { "type": "string" },
+        "status": { "type": "string", "enum": ["not_interested", "interested", "needs_followup", "selling", "actual_client"] },
+        "addedBy": { "type": "string" },
+        "createdAt": { "type": "number" },
+        "updatedAt": { "type": "number" },
+        "nextFollowUpDate": { "type": "number" }
+      },
+      "required": ["name", "district", "city", "status", "addedBy", "createdAt", "updatedAt"]
+    },
+    "Visit": {
+      "title": "Visit",
+      "description": "A visit to a shop",
+      "type": "object",
+      "properties": {
+        "result": { "type": "string", "enum": ["not_found", "rejected", "interested", "requested_second_visit", "requested_quote", "started_buying", "actual_client"] },
+        "productsOffered": { "type": "array" },
+        "notes": { "type": "string" },
+        "followUpDate": { "type": "number" },
+        "repId": { "type": "string" },
+        "createdAt": { "type": "number" },
+        "shopId": { "type": "string" }
+      },
+      "required": ["result", "productsOffered", "repId", "createdAt", "shopId"]
+    },
+    "Product": {
+      "title": "Product",
+      "description": "A product offered to shops",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "createdAt": { "type": "number" }
+      },
+      "required": ["name", "createdAt"]
+    }
+  },
+  "firestore": {
+    "users/{userId}": {
+      "schema": { "$ref": "#/entities/User" },
+      "description": "System users"
+    },
+    "shops/{shopId}": {
+      "schema": { "$ref": "#/entities/Shop" },
+      "description": "Shops"
+    },
+    "shops/{shopId}/visits/{visitId}": {
+      "schema": { "$ref": "#/entities/Visit" },
+      "description": "Visits history for a shop"
+    },
+    "products/{productId}": {
+      "schema": { "$ref": "#/entities/Product" },
+      "description": "Available products to offer"
+    }
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "name": "بوصلة ميدان",
+  "description": "نظام لإدارة الزيارات الميدانية ومتابعة العملاء المحتملين لفرق المبيعات والتسويق",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
