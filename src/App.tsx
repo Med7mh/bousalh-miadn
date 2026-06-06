@@ -16,44 +16,20 @@ function RequireAuth({ children }: { children: JSX.Element }) {
   if (loading) return <div className="h-screen flex items-center justify-center bg-slate-50">جاري التحميل...</div>;
   if (!user) return <Navigate to="/login" />;
   if (!profile) return (
-    <div className="h-screen flex flex-col items-center justify-center bg-slate-50 p-6 text-center space-y-6">
-      <div className="text-slate-800 text-lg font-medium">عذراً، لم يكتمل إعداد حسابك بشكل صحيح.</div>
+    <div className="h-screen flex flex-col items-center justify-center bg-slate-50 p-6 text-center space-y-4">
+      <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
+      <div className="text-slate-800 text-lg font-medium mt-4">جاري إعداد حسابك...</div>
       <p className="text-slate-500 max-w-sm">
-        نظراً لأن هذه أول مرة تسجل فيها الدخول، يرجى الضغط على الزر أدناه لإكمال الإعداد.
+        يرجى الانتظار بينما نقوم بتجهيز مساحة العمل الخاصة بك.
       </p>
-      <div className="flex gap-4">
-        <button 
-          onClick={async () => {
-            try {
-              const { doc, setDoc, getDocs, query, collection, where } = await import('firebase/firestore');
-              const { db } = await import('./lib/firebase');
-              const usersSnapshot = await getDocs(query(collection(db, 'users'), where('role', '==', 'manager')));
-              const isFirstUser = usersSnapshot.empty;
-              
-              await setDoc(doc(db, 'users', user.uid), {
-                email: user.email,
-                name: user.displayName || 'مستخدم مجهول',
-                role: isFirstUser ? 'manager' : 'rep',
-                createdAt: Date.now()
-              });
-              window.location.reload();
-            } catch (err: any) {
-              alert('خطأ: ' + err.message);
-            }
-          }}
-          className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-2.5 rounded-xl transition-colors"
-        >
-          إكمال إعداد الحساب
-        </button>
-        <button 
-          onClick={() => {
-            import('./lib/firebase').then(({ signOut }) => signOut());
-          }}
-          className="bg-white border border-red-200 text-red-600 hover:bg-red-50 font-medium px-6 py-2.5 rounded-xl transition-colors"
-        >
-          تسجيل الخروج
-        </button>
-      </div>
+      <button 
+        onClick={() => {
+          import('./lib/firebase').then(({ signOut }) => signOut());
+        }}
+        className="mt-6 text-red-600 hover:text-red-700 text-sm font-medium"
+      >
+        إلغاء وتسجيل الخروج
+      </button>
     </div>
   );
   
