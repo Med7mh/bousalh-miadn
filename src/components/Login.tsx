@@ -6,22 +6,28 @@ import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'fire
 import { useNavigate } from 'react-router-dom';
 
 export default function Login() {
-  const { loading, user } = useAuth();
+  const { loading, user, profile } = useAuth();
   const navigate = useNavigate();
   const [error, setError] = useState<string | null>(null);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSignUp, setIsSignUp] = useState(false);
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   useEffect(() => {
-    if (user) {
+    // Only auto-navigate to home if we already have both user AND profile (fully initialized)
+    // and we aren't currently submitting a form.
+    if (user && profile && !isSubmitting) {
       navigate('/');
     }
-  }, [user, navigate]);
+  }, [user, profile, navigate, isSubmitting]);
 
   const handleEmailAuth = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSubmitting) return;
     try {
+      setIsSubmitting(true);
       setError(null);
       if (isSignUp) {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
@@ -41,6 +47,7 @@ export default function Login() {
       } else {
         await signInWithEmailAndPassword(auth, email, password);
       }
+      navigate('/');
     } catch (err: any) {
       console.error(err);
       if (err.code === 'auth/invalid-credential' || err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password') {
@@ -52,16 +59,23 @@ export default function Login() {
       } else {
           setError(err.message || 'حدث خطأ أثناء المصادقة');
       }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleGoogleLogin = async () => {
+    if (isSubmitting) return;
     try {
+      setIsSubmitting(true);
       setError(null);
       await signInWithGoogle();
+      navigate('/');
     } catch (err: any) {
       console.error(err);
       setError(err.message || 'حدث خطأ أثناء تسجيل الدخول');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -121,9 +135,12 @@ export default function Login() {
           </div>
           <button
             type="submit"
-            className="w-full flex items-center justify-center gap-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-xl transition-all"
+            disabled={isSubmitting}
+            className="w-full flex items-center justify-center gap-3 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-semibold py-3 px-4 rounded-xl transition-all"
           >
-            {isSignUp ? 'إنشاء حساب جديد' : 'تسجيل الدخول'}
+            {isSubmitting ? (
+              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+            ) : isSignUp ? 'إنشاء حساب جديد' : 'تسجيل الدخول'}
           </button>
         </form>
 
@@ -136,7 +153,8 @@ export default function Login() {
         <button
           onClick={handleGoogleLogin}
           type="button"
-          className="w-full flex items-center justify-center gap-3 bg-white border-2 border-slate-200 hover:bg-slate-50 text-slate-700 font-semibold py-3 px-4 rounded-xl transition-all"
+          disabled={isSubmitting}
+          className="w-full flex items-center justify-center gap-3 bg-white border-2 border-slate-200 hover:bg-slate-50 disabled:opacity-50 text-slate-700 font-semibold py-3 px-4 rounded-xl transition-all"
         >
           <svg className="w-5 h-5" viewBox="0 0 24 24">
             <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
